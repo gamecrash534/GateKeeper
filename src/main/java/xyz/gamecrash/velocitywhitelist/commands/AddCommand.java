@@ -5,10 +5,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+
+import java.util.UUID;
 
 public class AddCommand {
     private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
@@ -31,11 +32,6 @@ public class AddCommand {
 
     private static int execute(CommandContext<CommandSource> ctx) {
         String argumentPlayer = StringArgumentType.getString(ctx, "username");
-        Player player = server.getPlayer(argumentPlayer).isPresent() ? server.getPlayer(argumentPlayer).get() : null;
-
-        if (player == null) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>The specified player is not online.");
-        }
 
         return 1;
     }

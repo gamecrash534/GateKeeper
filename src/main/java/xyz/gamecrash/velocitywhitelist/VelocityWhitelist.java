@@ -9,6 +9,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import org.slf4j.Logger;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+import xyz.gamecrash.velocitywhitelist.util.FloodgateIntegration;
 
 import java.nio.file.Path;
 
@@ -25,6 +26,7 @@ public class VelocityWhitelist {
     private final Path dataDirectory;
     @Getter
     private final Database database;
+    private final FloodgateIntegration floodgateIntegration;
 
     @Inject
     public VelocityWhitelist(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
@@ -37,6 +39,7 @@ public class VelocityWhitelist {
         logger.info("Enabling plugin");
         logger.info("Database file {}", dataDirectory.resolve("whitelist.db").toFile().exists() ? "found" : "not found, creating new one");
         database = new Database();
+        floodgateIntegration = new FloodgateIntegration();
     }
 
     @Subscribe
