@@ -1,7 +1,5 @@
 enabled: true
-
 prefix: "<dark_gray>[<light_purple>Whitelist<dark_gray>]<reset> "
-
 messages:
   disconnect-reason: |
     <red>You are not whitelisted on this server.</red>

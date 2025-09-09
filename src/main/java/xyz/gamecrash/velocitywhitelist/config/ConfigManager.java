@@ -2,6 +2,7 @@ package xyz.gamecrash.velocitywhitelist.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 public class ConfigManager {
     private final VelocityWhitelist plugin;
 
+    private YamlConfigurationLoader loader;
     private final Path configPath;
     private CommentedConfigurationNode config;
 
@@ -28,9 +30,11 @@ public class ConfigManager {
     }
 
     public void loadConfiguration() {
-        YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
-                .path(configPath)
-                .build();
+        loader = YamlConfigurationLoader.builder()
+            .path(configPath)
+            .indent(2)
+            .nodeStyle(NodeStyle.BLOCK)
+            .build();
         try {
             config = loader.load();
         } catch (ConfigurateException e) {
@@ -47,7 +51,7 @@ public class ConfigManager {
     public void setWhitelistEnabled(boolean enabled) {
         try {
             config.node("enabled").set(enabled);
-            YamlConfigurationLoader.builder().path(configPath).build().save(config);
+            loader.save(config);
         } catch (IOException e) {
             plugin.getLogger().error("Failed to save config.yml!", e);
         }
