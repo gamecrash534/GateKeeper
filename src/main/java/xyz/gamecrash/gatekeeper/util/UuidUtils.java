@@ -1,7 +1,7 @@
-package xyz.gamecrash.velocitywhitelist.util;
+package xyz.gamecrash.gatekeeper.util;
 
 import org.jetbrains.annotations.Nullable;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
+import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UuidUtils {
-    private static final FloodgateIntegration floodgateIntegration = VelocityWhitelist.getInstance().getFloodgateIntegration();
+    private static final FloodgateIntegration floodgateIntegration = GateKeeper.getInstance().getFloodgateIntegration();
 
     public static @Nullable UUID returnPlayerUUID(String name) {
         try {

@@ -1,9 +1,9 @@
-package xyz.gamecrash.velocitywhitelist.commands;
+package xyz.gamecrash.gatekeeper.commands;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
-import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 public class WhitelistCommand {
     public static LiteralCommandNode<CommandSource> build() {

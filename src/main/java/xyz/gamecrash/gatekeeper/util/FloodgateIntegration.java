@@ -1,16 +1,16 @@
-package xyz.gamecrash.velocitywhitelist.util;
+package xyz.gamecrash.gatekeeper.util;
 
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
+import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class FloodgateIntegration {
     private FloodgateApi api;
-    private Logger logger = VelocityWhitelist.getInstance().getLogger();
+    private Logger logger = GateKeeper.getInstance().getLogger();
 
     public FloodgateIntegration() {
         try {

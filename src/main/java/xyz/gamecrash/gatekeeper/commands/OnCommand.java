@@ -1,15 +1,15 @@
-package xyz.gamecrash.velocitywhitelist.commands;
+package xyz.gamecrash.gatekeeper.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
-import xyz.gamecrash.velocitywhitelist.config.ConfigManager;
-import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.config.ConfigManager;
+import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 public class OnCommand {
-    private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
+    private static final GateKeeper plugin = GateKeeper.getInstance();
     private static final ConfigManager configManager = plugin.getConfigManager();
 
     public static LiteralCommandNode<CommandSource> build() {

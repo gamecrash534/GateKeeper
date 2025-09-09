@@ -1,4 +1,4 @@
-package xyz.gamecrash.velocitywhitelist;
+package xyz.gamecrash.gatekeeper;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.BrigadierCommand;
@@ -12,19 +12,18 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import org.slf4j.Logger;
-import org.spongepowered.configurate.ConfigurateException;
-import xyz.gamecrash.velocitywhitelist.commands.WhitelistCommand;
-import xyz.gamecrash.velocitywhitelist.config.ConfigManager;
-import xyz.gamecrash.velocitywhitelist.listener.LoginListener;
-import xyz.gamecrash.velocitywhitelist.storage.Database;
-import xyz.gamecrash.velocitywhitelist.util.FloodgateIntegration;
+import xyz.gamecrash.gatekeeper.commands.WhitelistCommand;
+import xyz.gamecrash.gatekeeper.config.ConfigManager;
+import xyz.gamecrash.gatekeeper.listener.LoginListener;
+import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.FloodgateIntegration;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-@Plugin(id = "velocitywhitelist", name = "VelocityWhitelist", version = "1.0-SNAPSHOT", description = "Velocity Whitelist Plugin", url = "gamecrash.xyz", authors = {"game.crash"})
-public class VelocityWhitelist {
-    @Getter private static VelocityWhitelist instance;
+@Plugin(id = "gatekeeper", name = "GateKeeper", version = "1.0-SNAPSHOT", description = "Velocity Whitelist Plugin", authors = {"game.crash"})
+public class GateKeeper {
+    @Getter private static GateKeeper instance;
 
     @Getter private final Logger logger;
     @Getter private final ProxyServer server;
@@ -35,7 +34,7 @@ public class VelocityWhitelist {
     @Getter private LoginListener loginListener;
 
     @Inject
-    public VelocityWhitelist(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
+    public GateKeeper(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         instance = this;
 
         this.server = server;
@@ -70,7 +69,7 @@ public class VelocityWhitelist {
 
         CommandManager commandManager = server.getCommandManager();
         CommandMeta meta = commandManager.metaBuilder("whitelist")
-            .aliases("vwhitelist", "velocitywhitelist")
+            .aliases("vwhitelist", "velocitywhitelist", "gatekeeper")
             .plugin(this)
             .build();
         commandManager.register(meta, new BrigadierCommand(WhitelistCommand.build()));

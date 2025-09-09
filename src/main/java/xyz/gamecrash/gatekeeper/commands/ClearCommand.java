@@ -1,4 +1,4 @@
-package xyz.gamecrash.velocitywhitelist.commands;
+package xyz.gamecrash.gatekeeper.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -6,15 +6,15 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
-import xyz.gamecrash.velocitywhitelist.storage.Database;
-import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class ClearCommand {
-    private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
+    private static final GateKeeper plugin = GateKeeper.getInstance();
     private static final Database db = plugin.getDatabase();
     private static final ProxyServer server = plugin.getServer();
 

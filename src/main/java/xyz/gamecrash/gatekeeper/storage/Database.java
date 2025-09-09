@@ -1,7 +1,7 @@
-package xyz.gamecrash.velocitywhitelist.storage;
+package xyz.gamecrash.gatekeeper.storage;
 
 import lombok.Getter;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
+import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.File;
 import java.sql.*;
@@ -13,9 +13,9 @@ import java.util.UUID;
 public class Database {
     @Getter
     private Connection connection;
-    private final VelocityWhitelist plugin;
+    private final GateKeeper plugin;
 
-    public Database(VelocityWhitelist plugin) {
+    public Database(GateKeeper plugin) {
         this.plugin = plugin;
     }
 

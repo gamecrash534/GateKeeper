@@ -1,11 +1,11 @@
-package xyz.gamecrash.velocitywhitelist.util;
+package xyz.gamecrash.gatekeeper.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
+import xyz.gamecrash.gatekeeper.GateKeeper;
 
 public class MessageUtil {
-    private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
+    private static final GateKeeper plugin = GateKeeper.getInstance();
 
     public static Component fromString(String message) {
         return MiniMessage.miniMessage().deserialize(message);

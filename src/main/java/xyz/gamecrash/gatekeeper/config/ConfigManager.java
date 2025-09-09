@@ -1,10 +1,10 @@
-package xyz.gamecrash.velocitywhitelist.config;
+package xyz.gamecrash.gatekeeper.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
-import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
+import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +13,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ConfigManager {
-    private final VelocityWhitelist plugin;
+    private final GateKeeper plugin;
 
     private YamlConfigurationLoader loader;
     private final Path configPath;
     private CommentedConfigurationNode config;
 
-    public ConfigManager(VelocityWhitelist plugin) {
+    public ConfigManager(GateKeeper plugin) {
         this.plugin = plugin;
 
         configPath = plugin.getDataDirectory().resolve("config.yml");
