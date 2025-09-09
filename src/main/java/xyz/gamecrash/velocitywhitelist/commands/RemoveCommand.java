@@ -12,21 +12,21 @@ import xyz.gamecrash.velocitywhitelist.util.UuidUtils;
 
 import java.util.UUID;
 
-public class AddCommand {
+public class RemoveCommand {
     private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
     private static final Database db = plugin.getDatabase();
     private static final ProxyServer server = plugin.getServer();
 
     public static LiteralCommandNode<CommandSource> build() {
-        return BrigadierCommand.literalArgumentBuilder("add")
-            .requires(source -> source.hasPermission("whitelist.add"))
+        return BrigadierCommand.literalArgumentBuilder("remove")
+            .requires(source -> source.hasPermission("whitelist.remove"))
             .executes(ctx -> {
-                ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Usage: /whitelist add <username>");
+                ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Usage: /whitelist remove <username>");
                 return 1;
             })
             .then(
                 BrigadierCommand.requiredArgumentBuilder("username", StringArgumentType.greedyString())
-                    .executes(AddCommand::execute)
+                    .executes(RemoveCommand::execute)
             )
             .build();
     }
@@ -40,11 +40,10 @@ public class AddCommand {
             return 1;
         }
 
-        db.addToWhitelist(uuid, argument);
+        db.removeFromWhitelist(uuid);
 
-        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Added " + argument + " to the whitelist");
+        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Removed " + argument + " from the whitelist");
 
         return 1;
     }
-
 }

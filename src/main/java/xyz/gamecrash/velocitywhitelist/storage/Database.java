@@ -18,13 +18,21 @@ public class Database {
     public void connect() {
         try {
             File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
+
+
+            try {
+                Class.forName("org.sqlite.JDBC");
+            } catch (ClassNotFoundException e) {
+                plugin.getLogger().error("SQLite JDBC driver not found");
+                return;
+            }
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 
             String sql = "CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);";
             connection.createStatement().execute(sql);
 
             plugin.getLogger().info("Connected to the database");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
         }
     }
