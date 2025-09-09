@@ -89,7 +89,7 @@ public class Database {
         }
     }
 
-    public List<String> getWhitelist() {
+    public List<String> getWhitelistUsernames() {
         try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist");
              ResultSet resultSet = statement.executeQuery()) {
             List<String> whitelist = new ArrayList<>();

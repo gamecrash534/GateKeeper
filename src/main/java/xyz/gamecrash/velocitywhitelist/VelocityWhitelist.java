@@ -6,6 +6,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -70,5 +71,12 @@ public class VelocityWhitelist {
             .build();
         commandManager.register(meta, new BrigadierCommand(WhitelistCommand.build()));
         logger.info("Command registered");
+    }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        logger.info("Shutting down Plugin");
+        database.disconnect();
+        logger.info("That was it lol");
     }
 }
