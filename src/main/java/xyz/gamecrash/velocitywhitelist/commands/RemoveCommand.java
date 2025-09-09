@@ -39,9 +39,12 @@ public class RemoveCommand {
             ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Could not find player " + argument);
             return 1;
         }
+        if (!db.isWhitelisted(uuid)) {
+            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>" + argument + " is not whitelisted");
+            return 1;
+        }
 
         db.removeFromWhitelist(uuid);
-
         ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Removed " + argument + " from the whitelist");
 
         return 1;

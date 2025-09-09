@@ -39,9 +39,12 @@ public class AddCommand {
             ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Could not find player " + argument);
             return 1;
         }
+        if (db.isWhitelisted(uuid)) {
+            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>" + argument + " is already whitelisted");
+            return 1;
+        }
 
         db.addToWhitelist(uuid, argument);
-
         ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Added " + argument + " to the whitelist");
 
         return 1;
