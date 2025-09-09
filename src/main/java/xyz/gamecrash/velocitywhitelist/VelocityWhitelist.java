@@ -32,7 +32,7 @@ public class VelocityWhitelist {
     @Getter private final ConfigManager configManager;
     @Getter private final Database database;
     @Getter private final FloodgateIntegration floodgateIntegration;
-    private LoginListener loginListener;
+    @Getter private LoginListener loginListener;
 
     @Inject
     public VelocityWhitelist(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {

@@ -38,11 +38,19 @@ public class ConfigManager {
             return;
         }
         plugin.getLogger().info("Loaded configuration from config.yml");
-        System.out.println(config.node("prefix").getString());
     }
 
     public boolean isWhitelistEnabled() {
         return config.node("enabled").getBoolean(true);
+    }
+
+    public void setWhitelistEnabled(boolean enabled) {
+        try {
+            config.node("enabled").set(enabled);
+            YamlConfigurationLoader.builder().path(configPath).build().save(config);
+        } catch (IOException e) {
+            plugin.getLogger().error("Failed to save config.yml!", e);
+        }
     }
 
     public String getConfigMessage(String... path) {

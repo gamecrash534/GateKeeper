@@ -17,6 +17,8 @@ public class WhitelistCommand {
             .then(RemoveCommand.build())
             .then(ListCommand.build())
             .then(ClearCommand.build())
+            .then(OnCommand.build())
+            .then(OffCommand.build())
             .build();
     }
 }
