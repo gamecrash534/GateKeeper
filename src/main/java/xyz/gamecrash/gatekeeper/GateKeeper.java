@@ -68,8 +68,8 @@ public class GateKeeper {
         database.connect();
 
         CommandManager commandManager = server.getCommandManager();
-        CommandMeta meta = commandManager.metaBuilder("whitelist")
-            .aliases("vwhitelist", "velocitywhitelist", "gatekeeper")
+        CommandMeta meta = commandManager.metaBuilder("vwhitelist")
+            .aliases("velocitywhitelist", "gatekeeper")
             .plugin(this)
             .build();
         commandManager.register(meta, new BrigadierCommand(WhitelistCommand.build()));
