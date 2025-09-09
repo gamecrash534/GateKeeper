@@ -7,7 +7,7 @@ import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 public class WhitelistCommand {
     public static LiteralCommandNode<CommandSource> build() {
-        return BrigadierCommand.literalArgumentBuilder("whitelist")
+        return BrigadierCommand.literalArgumentBuilder("gatekeeper")
             .requires(source -> source.hasPermission("whitelist"))
             .executes(ctx -> {
                 ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.usage.whitelist"));
