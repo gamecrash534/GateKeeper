@@ -36,48 +36,25 @@ public class GateKeeper {
     @Inject
     public GateKeeper(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         instance = this;
-
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
 
         logger.info("Enabling plugin");
-
-        if (!dataDirectory.toFile().exists()) {
-           dataDirectory.toFile().mkdirs();
-            logger.info("Created missing plugin data directory");
-        }
-
+        createDataDirectory();
         configManager = new ConfigManager(this);
-
-        logger.info("Database file {}", dataDirectory.resolve("whitelist.db").toFile().exists() ? "found" : "not found, creating new one");
-        try {
-            dataDirectory.resolve("whitelist.db").toFile().createNewFile();
-        } catch (IOException e) {
-            logger.error("Could not create whitelist.db: " + e.getMessage());
-        }
-        database = new Database(this);
+        database = initializeDatabase();
         floodgateIntegration = new FloodgateIntegration();
     }
+
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("Initializing Plugin");
-
         configManager.loadConfiguration();
         database.connect();
-
-        CommandManager commandManager = server.getCommandManager();
-        CommandMeta meta = commandManager.metaBuilder("vwhitelist")
-            .aliases("velocitywhitelist", "gatekeeper")
-            .plugin(this)
-            .build();
-        commandManager.register(meta, new BrigadierCommand(WhitelistCommand.build()));
-        logger.info("Commands registered");
-
-        loginListener = new LoginListener(this);
-        server.getEventManager().register(this, loginListener); // currently the plugin would crash otherwise, as it tries to retrieve a config value
-        logger.info("Listeners registered");
+        registerCommands();
+        registerListeners();
     }
 
     @Subscribe
@@ -85,5 +62,39 @@ public class GateKeeper {
         logger.info("Shutting down Plugin");
         database.disconnect();
         logger.info("That was it lol");
+    }
+
+    private void createDataDirectory() {
+        if (!dataDirectory.toFile().exists()) {
+            dataDirectory.toFile().mkdirs();
+            logger.info("Created missing plugin data directory");
+        }
+    }
+
+    private Database initializeDatabase() {
+        Path dbPath = dataDirectory.resolve("whitelist.db");
+        logger.info("Database file {}", dbPath.toFile().exists() ? "found" : "not found, creating new one");
+        try {
+            dbPath.toFile().createNewFile();
+        } catch (IOException e) {
+            logger.error("Could not create whitelist.db: " + e.getMessage());
+        }
+        return new Database(this);
+    }
+
+    private void registerCommands() {
+        CommandManager commandManager = server.getCommandManager();
+        CommandMeta meta = commandManager.metaBuilder("vwhitelist")
+            .aliases("velocitywhitelist", "gatekeeper")
+            .plugin(this)
+            .build();
+        commandManager.register(meta, new BrigadierCommand(WhitelistCommand.build()));
+        logger.info("Commands registered");
+    }
+
+    private void registerListeners() {
+        loginListener = new LoginListener(this);
+        server.getEventManager().register(this, loginListener);
+        logger.info("Listeners registered");
     }
 }

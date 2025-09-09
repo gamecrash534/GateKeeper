@@ -6,34 +6,37 @@ import org.slf4j.Logger;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class FloodgateIntegration {
-    private FloodgateApi api;
-    private Logger logger = GateKeeper.getInstance().getLogger();
+    private final FloodgateApi api;
+    private final Logger logger;
 
     public FloodgateIntegration() {
-        try {
-            api = FloodgateApi.getInstance();
-            logger.info("Floodgate integration enabled");
-        } catch (NoClassDefFoundError e) {
-            api = null;
-            logger.info("Floodgate integration not found, skipping");
-        }
+        this.logger = GateKeeper.getInstance().getLogger();
+        this.api = initializeFloodgateApi();
     }
 
     public @Nullable UUID getUUID(String playerName) {
         if (api == null) return null;
 
-        if (playerName.startsWith(getBedrockPlayerPrefix()))
+        if (playerName.startsWith(getBedrockPlayerPrefix())) {
             playerName = playerName.substring(getBedrockPlayerPrefix().length());
+        }
 
-        CompletableFuture<UUID> future = api.getUuidFor(playerName);
-        return future.join();
+        return api.getUuidFor(playerName).join();
     }
 
     public String getBedrockPlayerPrefix() {
-        if (api == null) return null;
-        return api.getPlayerPrefix();
+        return api != null ? api.getPlayerPrefix() : null;
+    }
+
+    private FloodgateApi initializeFloodgateApi() {
+        try {
+            logger.info("Floodgate integration enabled");
+            return FloodgateApi.getInstance();
+        } catch (NoClassDefFoundError e) {
+            logger.info("Floodgate integration not found, skipping");
+            return null;
+        }
     }
 }

@@ -6,7 +6,6 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -14,19 +13,14 @@ import java.nio.file.Path;
 
 public class ConfigManager {
     private final GateKeeper plugin;
-
-    private YamlConfigurationLoader loader;
     private final Path configPath;
     private CommentedConfigurationNode config;
+    private YamlConfigurationLoader loader;
 
     public ConfigManager(GateKeeper plugin) {
         this.plugin = plugin;
-
-        configPath = plugin.getDataDirectory().resolve("config.yml");
-        if (!configPath.toFile().exists()) {
-            plugin.getLogger().info("Config.yml does not exist. Copying default config.");
-            copyDefaultConfig();
-        }
+        this.configPath = plugin.getDataDirectory().resolve("config.yml");
+        ensureDefaultConfigExists();
     }
 
     public void loadConfiguration() {
@@ -37,11 +31,10 @@ public class ConfigManager {
             .build();
         try {
             config = loader.load();
+            plugin.getLogger().info("Loaded configuration from config.yml");
         } catch (ConfigurateException e) {
             plugin.getLogger().error("Failed to load config.yml!", e);
-            return;
         }
-        plugin.getLogger().info("Loaded configuration from config.yml");
     }
 
     public boolean isWhitelistEnabled() {
@@ -61,17 +54,24 @@ public class ConfigManager {
         return config.node(path).getString();
     }
 
+    private void ensureDefaultConfigExists() {
+        if (Files.notExists(configPath)) {
+            plugin.getLogger().info("Config.yml does not exist. Copying default config.");
+            copyDefaultConfig();
+        }
+    }
+
     private void copyDefaultConfig() {
         try {
-            URL resourceLocation = getClass().getResource("/config.yml");
-            if (resourceLocation == null) {
-                plugin.getLogger().error("Could not find default config.yml as a resource. Cannot create default config.");
+            URL resource = getClass().getResource("/config.yml");
+            if (resource == null) {
+                plugin.getLogger().error("Could not find default config.yml as a resource.");
+                return;
             }
-            File configFile = configPath.toFile();
-            Files.copy(resourceLocation.openStream(), configFile.toPath());
+            Files.copy(resource.openStream(), configPath);
             plugin.getLogger().info("Default config.yml copied successfully.");
         } catch (IOException e) {
-            plugin.getLogger().error("Failed to copy default config.yml file.", e);
+            plugin.getLogger().error("Failed to copy default config.yml.", e);
         }
     }
 }

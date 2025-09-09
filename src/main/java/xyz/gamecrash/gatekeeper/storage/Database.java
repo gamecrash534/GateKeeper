@@ -22,18 +22,9 @@ public class Database {
     public void connect() {
         try {
             File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
-
-            try {
-                Class.forName("org.sqlite.JDBC");
-            } catch (ClassNotFoundException e) {
-                plugin.getLogger().error("SQLite JDBC driver not found");
-                return;
-            }
+            loadJdbcDriver();
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-
-            String sql = "CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);";
-            connection.createStatement().execute(sql);
-
+            executeUpdate("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);");
             plugin.getLogger().info("Connected to the database");
         } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
@@ -41,55 +32,23 @@ public class Database {
     }
 
     public void disconnect() {
-        if (connection != null) {
-            try {
-                connection.close();
-                plugin.getLogger().info("Disconnected from the database");
-            } catch (SQLException e) {
-                plugin.getLogger().error("Could not disconnect from the database", e);
-            }
-        }
+        closeConnection();
     }
 
     public boolean isWhitelisted(UUID uuid) {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT 1 FROM whitelist WHERE uuid = ?")) {
-            statement.setString(1, uuid.toString());
-            try (ResultSet result = statement.executeQuery()) {
-                return result.next();
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not check if UUID is whitelisted", e);
-            return false;
-        }
+        return executeQuery("SELECT 1 FROM whitelist WHERE uuid = ?", uuid.toString());
     }
 
     public boolean addToWhitelist(UUID uuid, String username) {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT OR IGNORE INTO WHITELIST (uuid, username) VALUES (?, ?)")) {
-            statement.setString(1, uuid.toString());
-            statement.setString(2, username);
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not add UUID to whitelist", e);
-            return false;
-        }
+        return executeUpdate("INSERT OR IGNORE INTO whitelist (uuid, username) VALUES (?, ?)", uuid.toString(), username) > 0;
     }
 
     public boolean removeFromWhitelist(UUID uuid) {
-        try (PreparedStatement statement = connection.prepareStatement("DELETE FROM whitelist WHERE uuid = ?")) {
-            statement.setString(1, uuid.toString());
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not remove UUID from whitelist", e);
-            return false;
-        }
+        return executeUpdate("DELETE FROM whitelist WHERE uuid = ?", uuid.toString()) > 0;
     }
 
     public void clearWhitelist() {
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DELETE FROM whitelist");
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not clear whitelist", e);
-        }
+        executeUpdate("DELETE FROM whitelist");
     }
 
     public List<String> getWhitelistUsernames() {
@@ -106,5 +65,46 @@ public class Database {
         }
     }
 
+    private void loadJdbcDriver() throws ClassNotFoundException {
+        Class.forName("org.sqlite.JDBC");
+    }
 
+    private void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                plugin.getLogger().info("Disconnected from the database");
+            } catch (SQLException e) {
+                plugin.getLogger().error("Could not disconnect from the database", e);
+            }
+        }
+    }
+
+    private boolean executeQuery(String sql, String... params) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            setParameters(statement, params);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next();
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().error("Query execution failed", e);
+            return false;
+        }
+    }
+
+    private int executeUpdate(String sql, String... params) {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            setParameters(statement, params);
+            return statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().error("Update execution failed", e);
+            return 0;
+        }
+    }
+
+    private void setParameters(PreparedStatement statement, String... params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            statement.setString(i + 1, params[i]);
+        }
+    }
 }

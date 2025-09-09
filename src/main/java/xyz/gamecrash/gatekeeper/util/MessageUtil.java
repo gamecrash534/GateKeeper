@@ -12,34 +12,32 @@ public class MessageUtil {
     }
 
     public static Component fromConfigKey(String... path) {
-        String message = plugin.getConfigManager().getConfigMessage(path);
-        if (message == null) {
-            return Component.text("Missing message for key: " + String.join(".", path));
-        }
-        return fromString(message);
+        String message = getConfigMessage(path);
+        return message != null ? fromString(message) : missingMessage(path);
     }
 
     public static String fromConfigKeyRaw(String... path) {
-        String message = plugin.getConfigManager().getConfigMessage(path);
-        if (message == null) {
-            return "Missing message for key: " + String.join(".", path);
-        }
-        return message;
+        String message = getConfigMessage(path);
+        return message != null ? message : "Missing message for key: " + String.join(".", path);
     }
 
     public static Component prefixedMessage(String path) {
-        Component prefix = fromConfigKey("prefix");
-        Component message = fromConfigKey(path.split("\\."));
-        return prefix.append(message);
+        return fromConfigKey("prefix").append(fromConfigKey(path.split("\\.")));
     }
 
     public static Component prefixedMessage(String path, String... replacements) {
-        Component prefix = fromConfigKey("prefix");
         String message = fromConfigKeyRaw(path.split("\\."));
         for (int i = 0; i < replacements.length; i++) {
             message = message.replace("{" + i + "}", replacements[i]);
         }
+        return fromConfigKey("prefix").append(fromString(message));
+    }
 
-        return prefix.append(fromString(message));
+    private static String getConfigMessage(String... path) {
+        return plugin.getConfigManager().getConfigMessage(path);
+    }
+
+    private static Component missingMessage(String... path) {
+        return Component.text("Missing message for key: " + String.join(".", path));
     }
 }
