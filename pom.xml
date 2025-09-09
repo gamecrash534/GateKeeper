@@ -47,6 +47,17 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>org.xerial:sqlite-jdbc</artifact>
+                            <excludes>
+                                <exclude>**/*.so</exclude>
+                                <exclude>**/*.dylib</exclude>
+                                <exclude>org/sqlite/native/linux/**</exclude>
+                                <exclude>org/sqlite/native/macosx/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <artifactSet>
                         <includes>
                             <include>org.xerial:sqlite-jdbc</include>
