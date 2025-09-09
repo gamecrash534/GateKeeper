@@ -51,6 +51,22 @@ public class Database {
         executeUpdate("DELETE FROM whitelist");
     }
 
+    public String getWhitelistUsername(UUID uuid) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist WHERE uuid = ?")) {
+            statement.setString(1, uuid.toString());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("username");
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().error("Could not retrieve username for UUID: " + uuid, e);
+            return null;
+        }
+    }
+
     public List<String> getWhitelistUsernames() {
         try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist");
              ResultSet resultSet = statement.executeQuery()) {
@@ -63,6 +79,10 @@ public class Database {
             plugin.getLogger().error("Could not retrieve whitelist", e);
             return Collections.emptyList();
         }
+    }
+
+    public boolean setWhitelistUsername(UUID uuid, String newUsername) {
+        return executeUpdate("UPDATE whitelist SET username = ? WHERE uuid = ?", newUsername, uuid.toString()) > 0;
     }
 
     private void loadJdbcDriver() throws ClassNotFoundException {

@@ -32,6 +32,15 @@ public class LoginListener {
             ));
             plugin.getLogger().info("Player {} tried to join but is not whitelisted. UUID: {}", player.getUsername(), player.getUniqueId());
         }
+        updateUsername(player);
     }
 
+    private void updateUsername(Player player) {
+        String currentUsername = player.getUsername();
+        String storedUsername = db.getWhitelistUsername(player.getUniqueId());
+        if (storedUsername == null || !storedUsername.equals(currentUsername)) {
+            db.setWhitelistUsername(player.getUniqueId(), currentUsername);
+            plugin.getLogger().info("Updated username for UUID {}: {}", player.getUniqueId(), currentUsername);
+        }
+    }
 }
