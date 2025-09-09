@@ -1,0 +1,23 @@
+enabled: true
+
+prefix: "<dark_gray>[<light_purple>Whitelist<dark_gray>]<white> "
+messages:
+  disconnect-reason: "<red>You are not whitelisted on this server.</red>\n<gray>Please contact an administrator if you believe this is a mistake.</gray>"
+  errors:
+    player-not-found: "<red>Player '{0}' not found.</red>"
+    already-whitelisted: "<red>Player is already whitelisted.</red>"
+    not-whitelisted: "<red>Player is not whitelisted.</red>"
+    incorrect-confirmation: "<red>Incorrect confirmation number."
+  usage:
+    add: "<red>Usage: /whitelist add <player></red>"
+    remove: "<red>Usage: /whitelist remove <player></red>"
+    whitelist: "<red>Usage: /whitelist <on|off|add|remove|list></red>"
+  info:
+    added-to-whitelist: "Added <red>{0}</red> to the whitelist."
+    removed-from-whitelist: "Removed <red>{0}</red> from the whitelist."
+    whitelist-on: "Whitelist has been <green>enabled</green>."
+    whitelist-off: "Whitelist has been <red>disabled</red>."
+    list: "Whitelisted players: <yellow>{0}</yellow>"
+    list-empty: "<gray>The whitelist is currently empty."
+    whitelist-clear: "Please type in <red>/whitelist clear {0}</red> in the next 15 seconds to confirm. <gray>Note that this action cannot be undone."
+    whitelist-clear-confirmed: "Whitelist cleared successfully."

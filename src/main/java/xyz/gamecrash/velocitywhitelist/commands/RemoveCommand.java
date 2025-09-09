@@ -8,6 +8,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
 import xyz.gamecrash.velocitywhitelist.util.UuidUtils;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class RemoveCommand {
         return BrigadierCommand.literalArgumentBuilder("remove")
             .requires(source -> source.hasPermission("whitelist.remove"))
             .executes(ctx -> {
-                ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Usage: /whitelist remove <username>");
+                ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.usage.remove"));
                 return 1;
             })
             .then(
@@ -36,16 +37,16 @@ public class RemoveCommand {
 
         UUID uuid = UuidUtils.returnPlayerUUID(argument);
         if (uuid == null) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Could not find player " + argument);
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));
             return 1;
         }
         if (!db.isWhitelisted(uuid)) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>" + argument + " is not whitelisted");
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.not-whitelisted", argument));
             return 1;
         }
 
         db.removeFromWhitelist(uuid);
-        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Removed " + argument + " from the whitelist");
+        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.removed-from-whitelist", argument));
 
         return 1;
     }

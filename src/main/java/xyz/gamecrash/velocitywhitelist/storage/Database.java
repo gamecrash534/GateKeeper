@@ -13,12 +13,15 @@ import java.util.UUID;
 public class Database {
     @Getter
     private Connection connection;
-    private final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
+    private final VelocityWhitelist plugin;
+
+    public Database(VelocityWhitelist plugin) {
+        this.plugin = plugin;
+    }
 
     public void connect() {
         try {
             File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
-
 
             try {
                 Class.forName("org.sqlite.JDBC");

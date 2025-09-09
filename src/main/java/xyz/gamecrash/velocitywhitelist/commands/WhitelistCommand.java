@@ -3,13 +3,14 @@ package xyz.gamecrash.velocitywhitelist.commands;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
+import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
 
 public class WhitelistCommand {
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("whitelist")
             .requires(source -> source.hasPermission("whitelist"))
             .executes(ctx -> {
-                ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Usage: /whitelist [add|remove] <username>");
+                ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.usage.whitelist"));
                 return 1;
             })
             .then(AddCommand.build())

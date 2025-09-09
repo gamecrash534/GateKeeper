@@ -5,9 +5,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
 import xyz.gamecrash.velocitywhitelist.util.UuidUtils;
 
 import java.util.UUID;
@@ -15,13 +15,12 @@ import java.util.UUID;
 public class AddCommand {
     private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
     private static final Database db = plugin.getDatabase();
-    private static final ProxyServer server = plugin.getServer();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("add")
             .requires(source -> source.hasPermission("whitelist.add"))
             .executes(ctx -> {
-                ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Usage: /whitelist add <username>");
+                ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.usage.add"));
                 return 1;
             })
             .then(
@@ -36,16 +35,16 @@ public class AddCommand {
 
         UUID uuid = UuidUtils.returnPlayerUUID(argument);
         if (uuid == null) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Could not find player " + argument);
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));
             return 1;
         }
         if (db.isWhitelisted(uuid)) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>" + argument + " is already whitelisted");
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.already-whitelisted", argument));
             return 1;
         }
 
         db.addToWhitelist(uuid, argument);
-        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Added " + argument + " to the whitelist");
+        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.added-to-whitelist", argument));
 
         return 1;
     }

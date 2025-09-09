@@ -4,8 +4,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
+import net.kyori.adventure.text.Component;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
 
 import java.util.List;
 
@@ -22,10 +24,10 @@ public class ListCommand {
 
     private static int execute(CommandContext<CommandSource> ctx) {
         List<String> whitelist = db.getWhitelistUsernames();
-        String message = "<dark_gray>[<yellow>Whitelist<dark_gray>] " + (whitelist.isEmpty() ? "<gray>The whitelist is currently empty." :
-            "<green>Whitelisted players: <white>" + String.join(", ", whitelist));
+        Component message = whitelist.isEmpty() ? MessageUtil.prefixedMessage("messages.info.list-empty") :
+            MessageUtil.prefixedMessage("messages.info.list", String.join(", ", whitelist));
 
-        ctx.getSource().sendRichMessage(message);
+        ctx.getSource().sendMessage(message);
         return 1;
     }
 }

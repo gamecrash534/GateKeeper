@@ -8,10 +8,10 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.velocitywhitelist.VelocityWhitelist;
 import xyz.gamecrash.velocitywhitelist.storage.Database;
+import xyz.gamecrash.velocitywhitelist.util.MessageUtil;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.random.RandomGenerator;
 
 public class ClearCommand {
     private static final VelocityWhitelist plugin = VelocityWhitelist.getInstance();
@@ -33,10 +33,8 @@ public class ClearCommand {
     private static int execute(CommandContext<CommandSource> ctx) {
         confirmation = new Random().nextInt(100, 999);
 
-        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Please type in <white>/whitelist clear "
-            + confirmation + "<red> to confirm clearing the whitelist. This action cannot be undone."
-        );
-        startConfirmClearTask();
+        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.whitelist-clear", String.valueOf(confirmation)));
+        startConfirmExpirationTask();
 
         return 1;
     }
@@ -45,19 +43,19 @@ public class ClearCommand {
         int userInput = IntegerArgumentType.getInteger(ctx, "confirmation");
 
         if (userInput != confirmation || confirmation == 0) {
-            ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <red>Incorrect confirmation number");
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.incorrect-confirmation"));
             confirmation = 0;
             return 1;
         }
 
         db.clearWhitelist();
-        ctx.getSource().sendRichMessage("<dark_gray>[<yellow>Whitelist<dark_gray>] <green>Whitelist cleared successfully");
+        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.whitelist-clear-confirmed", String.valueOf(confirmation)));
         confirmation = 0;
 
         return 1;
     }
 
-    private static void startConfirmClearTask() {
+    private static void startConfirmExpirationTask() {
         server.getScheduler().buildTask(plugin, () -> {
             confirmation = 0;
         })
