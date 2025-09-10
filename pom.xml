@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.gamecrash</groupId>
-    <artifactId>velocitywhitelist</artifactId>
+    <artifactId>gatekeeper</artifactId>
     <version>1.1</version>
     <packaging>jar</packaging>
 
