@@ -6,17 +6,17 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import lombok.Setter;
 import xyz.gamecrash.gatekeeper.GateKeeper;
-import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
 
 public class LoginListener {
     private final GateKeeper plugin;
-    private final Database db;
+    private final WhitelistCache cache;
     @Setter private boolean isEnabled;
 
     public LoginListener(GateKeeper plugin) {
         this.plugin = plugin;
-        this.db = plugin.getDatabase();
+        this.cache = plugin.getWhitelistCache();
         this.isEnabled = plugin.getConfigManager().isWhitelistEnabled();
     }
 
@@ -26,21 +26,24 @@ public class LoginListener {
 
         Player player = e.getPlayer();
 
-        if (!db.isWhitelisted(player.getUniqueId())) {
+        if (!cache.isWhitelisted(player.getUniqueId())) {
             e.setResult(ResultedEvent.ComponentResult.denied(
                 MessageUtil.fromConfigKey("messages", "disconnect-reason")
             ));
             plugin.getLogger().info("Player {} tried to join but is not whitelisted. UUID: {}", player.getUsername(), player.getUniqueId());
+        } else {
+            updateUsername(player);
         }
-        updateUsername(player);
     }
 
     private void updateUsername(Player player) {
         String currentUsername = player.getUsername();
-        String storedUsername = db.getWhitelistUsername(player.getUniqueId());
+        String storedUsername = cache.getUsername(player.getUniqueId());
+
         if (storedUsername == null || !storedUsername.equals(currentUsername)) {
-            db.setWhitelistUsername(player.getUniqueId(), currentUsername);
-            plugin.getLogger().info("Updated username for UUID {}: {}", player.getUniqueId(), currentUsername);
+            cache.updateUsername(player.getUniqueId(), currentUsername);
+            plugin.getLogger().info("Updated username for UUID {}: {} -> {}",
+                player.getUniqueId(), storedUsername, currentUsername);
         }
     }
 }

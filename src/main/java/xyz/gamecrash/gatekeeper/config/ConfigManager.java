@@ -50,6 +50,18 @@ public class ConfigManager {
         }
     }
 
+    public boolean isCacheEnabled() {
+        return config.node("cache", "enabled").getBoolean(true);
+    }
+
+    public int getCacheTtlMinutes() {
+        return config.node("cache", "ttl-minutes").getInt(5);
+    }
+
+    public int getCacheRefreshIntervalMinutes() {
+        return config.node("cache", "refresh-interval-minutes").getInt(10);
+    }
+
     public String getConfigMessage(String... path) {
         return config.node(path).getString();
     }

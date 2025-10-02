@@ -7,15 +7,15 @@ import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.gatekeeper.GateKeeper;
-import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class ClearCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
-    private static final Database db = plugin.getDatabase();
+    private static final WhitelistCache cache = plugin.getWhitelistCache();
     private static final ProxyServer server = plugin.getServer();
 
     private static int confirmation;
@@ -48,8 +48,8 @@ public class ClearCommand {
             return 1;
         }
 
-        db.clearWhitelist();
-        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.whitelist-clear-confirmed", String.valueOf(confirmation)));
+        cache.clearWhitelist();
+        ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.whitelist-clear-confirmed"));
         confirmation = 0;
 
         return 1;

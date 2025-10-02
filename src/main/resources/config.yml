@@ -1,5 +1,12 @@
 enabled: true
+
 prefix: "<dark_gray>[<light_purple>Whitelist<dark_gray>]<reset> "
+
+cache:
+  enabled: true
+  ttl-minutes: 5
+  refresh-interval-minutes: 10
+
 messages:
   disconnect-reason: |
     <red>You are not whitelisted on this server.</red>

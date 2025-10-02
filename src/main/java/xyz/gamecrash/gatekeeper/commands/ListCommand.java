@@ -6,14 +6,14 @@ import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.text.Component;
 import xyz.gamecrash.gatekeeper.GateKeeper;
-import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
+import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
 
 import java.util.List;
 
 public class ListCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
-    private static final Database db = plugin.getDatabase();
+    private static final WhitelistCache cache = plugin.getWhitelistCache();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("list")
@@ -23,7 +23,7 @@ public class ListCommand {
     }
 
     private static int execute(CommandContext<CommandSource> ctx) {
-        List<String> whitelist = db.getWhitelistUsernames();
+        List<String> whitelist = cache.getAllUsernames();
         Component message = whitelist.isEmpty() ? MessageUtil.prefixedMessage("messages.info.list-empty") :
             MessageUtil.prefixedMessage("messages.info.list", String.join(", ", whitelist));
 

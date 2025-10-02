@@ -7,15 +7,15 @@ import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.gatekeeper.GateKeeper;
-import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 import xyz.gamecrash.gatekeeper.util.UuidUtils;
+import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
 
 import java.util.UUID;
 
 public class RemoveCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
-    private static final Database db = plugin.getDatabase();
+    private static final WhitelistCache cache = plugin.getWhitelistCache();
     private static final ProxyServer server = plugin.getServer();
 
     public static LiteralCommandNode<CommandSource> build() {
@@ -40,12 +40,13 @@ public class RemoveCommand {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));
             return 1;
         }
-        if (!db.isWhitelisted(uuid)) {
+
+        if (!cache.isWhitelisted(uuid)) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.not-whitelisted", argument));
             return 1;
         }
 
-        db.removeFromWhitelist(uuid);
+        cache.removeFromWhitelist(uuid);
         ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.removed-from-whitelist", argument));
 
         return 1;

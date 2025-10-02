@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Database {
     @Getter
@@ -79,6 +81,21 @@ public class Database {
             plugin.getLogger().error("Could not retrieve whitelist", e);
             return Collections.emptyList();
         }
+    }
+
+    public Map<UUID, String> getAllWhitelistEntries() {
+        Map<UUID, String> entries = new HashMap<>();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT uuid, username FROM whitelist");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                String username = resultSet.getString("username");
+                entries.put(uuid, username);
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().error("Could not retrieve all whitelist entries", e);
+        }
+        return entries;
     }
 
     public boolean setWhitelistUsername(UUID uuid, String newUsername) {

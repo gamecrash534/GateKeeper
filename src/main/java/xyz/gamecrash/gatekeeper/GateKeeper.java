@@ -17,6 +17,7 @@ import xyz.gamecrash.gatekeeper.config.ConfigManager;
 import xyz.gamecrash.gatekeeper.listener.LoginListener;
 import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.FloodgateIntegration;
+import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,6 +31,7 @@ public class GateKeeper {
     @Getter private final Path dataDirectory;
     @Getter private final ConfigManager configManager;
     @Getter private final Database database;
+    @Getter private final WhitelistCache whitelistCache;
     @Getter private final FloodgateIntegration floodgateIntegration;
     @Getter private LoginListener loginListener;
 
@@ -45,14 +47,16 @@ public class GateKeeper {
         configManager = new ConfigManager(this);
         database = initializeDatabase();
         floodgateIntegration = new FloodgateIntegration();
+        whitelistCache = new WhitelistCache(this);
     }
-
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("Initializing Plugin");
         configManager.loadConfiguration();
         database.connect();
+        whitelistCache.initializeCache();
+
         registerCommands();
         registerListeners();
     }
@@ -60,8 +64,9 @@ public class GateKeeper {
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         logger.info("Shutting down Plugin");
+        whitelistCache.shutdown();
         database.disconnect();
-        logger.info("That was it lol");
+        logger.info("Done");
     }
 
     private void createDataDirectory() {
