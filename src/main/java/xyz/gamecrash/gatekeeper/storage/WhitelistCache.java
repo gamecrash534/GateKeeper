@@ -1,4 +1,4 @@
-package xyz.gamecrash.gatekeeper.cache;
+package xyz.gamecrash.gatekeeper.storage;
 
 import lombok.Getter;
 import xyz.gamecrash.gatekeeper.GateKeeper;

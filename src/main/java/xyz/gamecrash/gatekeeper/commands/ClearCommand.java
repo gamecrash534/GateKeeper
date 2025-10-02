@@ -8,7 +8,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
-import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
+import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

@@ -7,7 +7,7 @@ import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.text.Component;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
-import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
+import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 import java.util.List;
 

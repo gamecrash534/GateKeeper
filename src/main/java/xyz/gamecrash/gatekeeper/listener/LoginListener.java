@@ -7,7 +7,7 @@ import com.velocitypowered.api.proxy.Player;
 import lombok.Setter;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
-import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
+import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 public class LoginListener {
     private final GateKeeper plugin;

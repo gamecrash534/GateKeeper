@@ -17,7 +17,7 @@ import xyz.gamecrash.gatekeeper.config.ConfigManager;
 import xyz.gamecrash.gatekeeper.listener.LoginListener;
 import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.FloodgateIntegration;
-import xyz.gamecrash.gatekeeper.cache.WhitelistCache;
+import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 import java.io.IOException;
 import java.nio.file.Path;
