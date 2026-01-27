@@ -102,6 +102,14 @@ public class Database {
         return executeUpdate("UPDATE whitelist SET username = ? WHERE uuid = ?", newUsername, uuid.toString()) > 0;
     }
 
+    public boolean isConnected() {
+        try {
+            return connection != null && !connection.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
     private void loadJdbcDriver() throws ClassNotFoundException {
         Class.forName("org.sqlite.JDBC");
     }

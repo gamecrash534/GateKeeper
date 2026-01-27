@@ -45,6 +45,11 @@ public class WhitelistCache {
     public void refreshCache() {
         if (!cacheEnabled) return;
 
+        if (!plugin.getDatabase().isConnected()) {
+            plugin.getLogger().warn("Database not connected, skipping cache refresh");
+            return;
+        }
+
         try {
             Map<UUID, String> freshData = plugin.getDatabase().getAllWhitelistEntries();
 

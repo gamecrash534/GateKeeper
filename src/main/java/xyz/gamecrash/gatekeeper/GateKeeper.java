@@ -53,8 +53,8 @@ public class GateKeeper {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("Initializing Plugin");
-        configManager.loadConfiguration();
         database.connect();
+        configManager.loadConfiguration();
         whitelistCache.initializeCache();
 
         registerCommands();

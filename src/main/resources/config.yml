@@ -19,9 +19,9 @@ messages:
     whitelist-already-on: "<red>Whitelist is already enabled.</red>"
     whitelist-already-off: "<red>Whitelist is already disabled.</red>"
   usage:
-    add: "<red>Usage: /whitelist add <player></red>"
-    remove: "<red>Usage: /whitelist remove <player></red>"
-    whitelist: "<red>Usage: /whitelist <on|off|add|remove|list></red>"
+    add: "<red>Usage: /vwhitelist add <player></red>"
+    remove: "<red>Usage: /vwhitelist remove <player></red>"
+    whitelist: "<red>Usage: /vwhitelist <on|off|add|remove|list></red>"
   info:
     added-to-whitelist: "Added <red>{0}</red> to the whitelist."
     removed-from-whitelist: "Removed <red>{0}</red> from the whitelist."
