@@ -50,7 +50,10 @@
                     <filters>
                         <filter>
                             <artifact>org.xerial:sqlite-jdbc</artifact>
-
+                            <includes>
+                                <include>org/sqlite/**/*.class</include>
+                                <include>org/sqlite/native/Linux/x86_64/**</include>
+                            </includes>
                         </filter>
                     </filters>
                     <artifactSet>
