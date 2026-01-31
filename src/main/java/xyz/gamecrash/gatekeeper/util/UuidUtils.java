@@ -1,6 +1,7 @@
 package xyz.gamecrash.gatekeeper.util;
 
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.BufferedReader;
@@ -14,6 +15,8 @@ import java.util.regex.Pattern;
 
 public class UuidUtils {
     private static final FloodgateIntegration floodgateIntegration = GateKeeper.getInstance().getFloodgateIntegration();
+    private static final Logger logger = GateKeeper.getInstance().getLogger();
+
     private static final Pattern DASHED_UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern UNDASHED_UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{32}$");
 
@@ -22,15 +25,16 @@ public class UuidUtils {
         if (parsedUuid != null) return parsedUuid;
 
         try {
-            UUID javaUUID = returnJavaPlayerUUID(input);
-            return javaUUID != null ? javaUUID : floodgateIntegration.getUUID(input);
+            if (input.startsWith(floodgateIntegration.getBedrockPlayerPrefix())) return returnBedrockPlayerUUID(input);
+            else return returnJavaPlayerUUID(input);
         } catch (Exception e) {
+            logger.warn("Exception caught whilst trying to fetch UUID: '{}' \nIgnoring. No UUID will be returned instead - so no player will be found.", e.getMessage());
             return null;
         }
     }
 
     public static @Nullable UUID returnJavaPlayerUUID(String name) throws Exception {
-        HttpURLConnection connection = createConnection(name);
+        HttpURLConnection connection = createConnection("https://api.mojang.com/users/profiles/minecraft/" + name);
 
         try {
             int responseCode = connection.getResponseCode();
@@ -43,6 +47,13 @@ public class UuidUtils {
         }
     }
 
+    public static @Nullable UUID returnBedrockPlayerUUID(String name) throws Exception {
+        String bedrockPrefix = floodgateIntegration.getBedrockPlayerPrefix();
+        if (bedrockPrefix != null && name.startsWith(bedrockPrefix)) name = name.substring(bedrockPrefix.length());
+
+        return floodgateIntegration.getUUID(name);
+    }
+
     private static @Nullable UUID parseUuid(String input) {
         if (DASHED_UUID_PATTERN.matcher(input).matches()) {
             try {
@@ -50,15 +61,13 @@ public class UuidUtils {
             } catch (IllegalArgumentException e) {
                 return null;
             }
-        } else if (UNDASHED_UUID_PATTERN.matcher(input).matches()) {
-            return com.velocitypowered.api.util.UuidUtils.fromUndashed(input);
-        }
+        } else if (UNDASHED_UUID_PATTERN.matcher(input).matches()) return com.velocitypowered.api.util.UuidUtils.fromUndashed(input);
 
         return null;
     }
 
-    private static HttpURLConnection createConnection(String name) throws Exception {
-        URL url = new URI("https://api.mojang.com/users/profiles/minecraft/" + name).toURL();
+    private static HttpURLConnection createConnection(String uri) throws Exception {
+        URL url = new URI(uri).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
         return connection;

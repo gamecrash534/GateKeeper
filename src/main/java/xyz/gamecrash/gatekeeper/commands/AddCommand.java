@@ -33,6 +33,8 @@ public class AddCommand {
     private static int execute(CommandContext<CommandSource> ctx) {
         String argument = StringArgumentType.getString(ctx, "username");
 
+        if (argument.startsWith("\"") && argument.endsWith("\"")) argument = argument.substring(1, argument.length() - 1);
+
         UUID uuid = UuidUtils.returnPlayerUUID(argument);
         if (uuid == null) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));
