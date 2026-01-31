@@ -14,11 +14,16 @@ import java.util.regex.Pattern;
 
 public class UuidUtils {
     private static final FloodgateIntegration floodgateIntegration = GateKeeper.getInstance().getFloodgateIntegration();
+    private static final Pattern DASHED_UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    private static final Pattern UNDASHED_UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{32}$");
 
-    public static @Nullable UUID returnPlayerUUID(String name) {
+    public static @Nullable UUID returnPlayerUUID(String input) {
+        UUID parsedUuid = parseUuid(input);
+        if (parsedUuid != null) return parsedUuid;
+
         try {
-            UUID javaUUID = returnJavaPlayerUUID(name);
-            return javaUUID != null ? javaUUID : floodgateIntegration.getUUID(name);
+            UUID javaUUID = returnJavaPlayerUUID(input);
+            return javaUUID != null ? javaUUID : floodgateIntegration.getUUID(input);
         } catch (Exception e) {
             return null;
         }
@@ -36,6 +41,20 @@ public class UuidUtils {
         } finally {
             connection.disconnect();
         }
+    }
+
+    private static @Nullable UUID parseUuid(String input) {
+        if (DASHED_UUID_PATTERN.matcher(input).matches()) {
+            try {
+                return UUID.fromString(input);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        } else if (UNDASHED_UUID_PATTERN.matcher(input).matches()) {
+            return com.velocitypowered.api.util.UuidUtils.fromUndashed(input);
+        }
+
+        return null;
     }
 
     private static HttpURLConnection createConnection(String name) throws Exception {

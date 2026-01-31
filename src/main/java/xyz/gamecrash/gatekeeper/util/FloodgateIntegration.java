@@ -19,11 +19,12 @@ public class FloodgateIntegration {
     public @Nullable UUID getUUID(String playerName) {
         if (api == null) return null;
 
-        if (playerName.startsWith(getBedrockPlayerPrefix())) {
-            playerName = playerName.substring(getBedrockPlayerPrefix().length());
-        }
+        if (playerName.startsWith(getBedrockPlayerPrefix())) playerName = playerName.substring(getBedrockPlayerPrefix().length());
 
-        return api.getUuidFor(playerName).join();
+        UUID uuid = api.getUuidFor(playerName).join();
+        if (uuid == null && playerName.contains(" ")) uuid = api.getUuidFor(playerName.replace(" ", "_")).join();
+
+        return uuid;
     }
 
     public String getBedrockPlayerPrefix() {
