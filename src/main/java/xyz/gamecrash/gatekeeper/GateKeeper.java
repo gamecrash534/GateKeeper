@@ -53,7 +53,12 @@ public class GateKeeper {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("Initializing Plugin");
-        database.connect();
+        try {
+            database.connect();
+        } catch (RuntimeException e) {
+            logger.info("Cancelling any further initialization");
+            return;
+        }
         configManager.loadConfiguration();
         whitelistCache.initializeCache();
 

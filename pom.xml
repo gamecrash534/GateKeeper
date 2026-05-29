@@ -6,7 +6,7 @@
 
     <groupId>xyz.gamecrash</groupId>
     <artifactId>gatekeeper</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <name>velocitywhitelist</name>
@@ -53,9 +53,13 @@
                             <includes>
                                 <include>org/sqlite/**/*.class</include>
                                 <include>org/sqlite/native/Linux/x86_64/**</include>
+                                <include>org/sqlite/native/Windows/x86_64/**</include>
+                                <include>org/sqlite/native/Windows/x86/**</include>
+                                <include>org/sqlite/native/MacOS/**</include>
                             </includes>
                         </filter>
                     </filters>
+
                     <artifactSet>
                         <includes>
                             <include>org.xerial:sqlite-jdbc</include>

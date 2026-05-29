@@ -21,7 +21,7 @@ public class Database {
         this.plugin = plugin;
     }
 
-    public void connect() {
+    public void connect() throws RuntimeException {
         try {
             File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
             loadJdbcDriver();
@@ -30,6 +30,7 @@ public class Database {
             plugin.getLogger().info("Connected to the database");
         } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
+            throw new RuntimeException();
         }
     }
 

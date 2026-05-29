@@ -25,10 +25,12 @@ public class UuidUtils {
         if (parsedUuid != null) return parsedUuid;
 
         try {
-            if (input.startsWith(floodgateIntegration.getBedrockPlayerPrefix())) return returnBedrockPlayerUUID(input);
+            String bedrockPrefix = floodgateIntegration.getBedrockPlayerPrefix();
+            if (bedrockPrefix != null && input.startsWith(bedrockPrefix)) return returnBedrockPlayerUUID(input, bedrockPrefix);
             else return returnJavaPlayerUUID(input);
         } catch (Exception e) {
             logger.warn("Exception caught whilst trying to fetch UUID: '{}' \nIgnoring. No UUID will be returned instead - so no player will be found.", e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -47,9 +49,8 @@ public class UuidUtils {
         }
     }
 
-    public static @Nullable UUID returnBedrockPlayerUUID(String name) throws Exception {
-        String bedrockPrefix = floodgateIntegration.getBedrockPlayerPrefix();
-        if (bedrockPrefix != null && name.startsWith(bedrockPrefix)) name = name.substring(bedrockPrefix.length());
+    public static @Nullable UUID returnBedrockPlayerUUID(String name, String prefix) {
+        if (prefix != null && name.startsWith(prefix)) name = name.substring(prefix.length());
 
         return floodgateIntegration.getUUID(name);
     }
