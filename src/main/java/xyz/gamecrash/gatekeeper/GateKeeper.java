@@ -17,7 +17,6 @@ import xyz.gamecrash.gatekeeper.commands.WhitelistCommand;
 import xyz.gamecrash.gatekeeper.config.ConfigManager;
 import xyz.gamecrash.gatekeeper.listener.LoginListener;
 import xyz.gamecrash.gatekeeper.storage.Database;
-import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 import xyz.gamecrash.gatekeeper.util.FloodgateIntegration;
 import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 
@@ -38,7 +37,6 @@ public class GateKeeper {
     @Getter private final Path dataDirectory;
     @Getter private final ConfigManager configManager;
     @Getter private final Database database;
-    @Getter private final WhitelistCache whitelistCache;
     @Getter private final FloodgateIntegration floodgateIntegration;
     @Getter private final LuckPermsIntegration luckpermsIntegration;
     @Getter private LoginListener loginListener;
@@ -56,7 +54,6 @@ public class GateKeeper {
         database = initializeDatabase();
         floodgateIntegration = new FloodgateIntegration();
         luckpermsIntegration = new LuckPermsIntegration();
-        whitelistCache = new WhitelistCache(this);
     }
 
     @Subscribe
@@ -69,7 +66,6 @@ public class GateKeeper {
             return;
         }
         configManager.loadConfiguration();
-        whitelistCache.initializeCache();
 
         registerCommands();
         registerListeners();
@@ -78,7 +74,6 @@ public class GateKeeper {
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         logger.info("Shutting down Plugin");
-        whitelistCache.shutdown();
         database.disconnect();
         logger.info("Done");
     }

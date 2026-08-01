@@ -50,7 +50,7 @@
                     <minimizeJar>true</minimizeJar>
                     <artifactSet>
                         <includes>
-                            <include>com.h2database:h2</include>
+                            <include>com.h2database:h2-mvstore</include>
                         </includes>
                     </artifactSet>
                 </configuration>

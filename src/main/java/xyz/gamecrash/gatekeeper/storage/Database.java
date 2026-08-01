@@ -28,6 +28,8 @@ public class Database {
 
             map = store.openMap("whitelist");
 
+            map.putIfAbsent("groups", "");
+
             plugin.getLogger().info("Connected to the database");
         } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
@@ -80,11 +82,15 @@ public class Database {
     }
 
     public Collection<String> getWhitelistUsernames() {
-        return map.values();
+        return map.entrySet().stream()
+            .filter(e -> !e.getKey().equals("groups"))
+            .flatMap(e -> e.getValue().lines())
+            .collect(Collectors.toSet());
     }
 
     public Map<UUID, String> getAllWhitelistEntries() {
         return map.entrySet().stream()
+            .filter(e -> !e.getKey().equals("groups"))
             .collect(
                 Collectors.toMap(e -> UUID.fromString(e.getKey()), Map.Entry::getValue)
             );

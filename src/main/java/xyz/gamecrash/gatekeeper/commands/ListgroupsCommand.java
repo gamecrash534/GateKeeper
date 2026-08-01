@@ -16,7 +16,7 @@ public class ListgroupsCommand {
     private static final Database db = plugin.getDatabase();
 
     public static LiteralCommandNode<CommandSource> build() {
-        return BrigadierCommand.literalArgumentBuilder("list")
+        return BrigadierCommand.literalArgumentBuilder("listgroups")
             .requires(source -> source.hasPermission("whitelist.listgroups"))
             .executes(ListgroupsCommand::execute)
             .build();
