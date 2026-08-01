@@ -9,23 +9,23 @@ import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
-import java.util.Collection;
+import java.util.Set;
 
-public class ListCommand {
+public class ListgroupsCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
     private static final Database db = plugin.getDatabase();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("list")
-            .requires(source -> source.hasPermission("whitelist.list"))
-            .executes(ListCommand::execute)
+            .requires(source -> source.hasPermission("whitelist.listgroups"))
+            .executes(ListgroupsCommand::execute)
             .build();
     }
 
     private static int execute(CommandContext<CommandSource> ctx) {
-        Collection<String> whitelist = db.getWhitelistUsernames();
+        Set<String> whitelist = db.getWhitelistedGroups();
         Component message = whitelist.isEmpty() ? MessageUtil.prefixedMessage("messages.info.list-empty") :
-            MessageUtil.prefixedMessage("messages.info.list", String.join(", ", whitelist));
+            MessageUtil.prefixedMessage("messages.info.listgroups", String.join(", ", whitelist));
 
         ctx.getSource().sendMessage(message);
         return 1;

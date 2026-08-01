@@ -6,13 +6,11 @@ import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.config.ConfigManager;
-import xyz.gamecrash.gatekeeper.listener.LoginListener;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 public class OffCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
     private static final ConfigManager configManager = plugin.getConfigManager();
-    private static final LoginListener loginListener = plugin.getLoginListener();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("off")

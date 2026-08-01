@@ -5,18 +5,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 import xyz.gamecrash.gatekeeper.util.UuidUtils;
-import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 import java.util.UUID;
 
 public class RemoveCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
-    private static final WhitelistCache cache = plugin.getWhitelistCache();
-    private static final ProxyServer server = plugin.getServer();
+    private static final Database db = plugin.getDatabase();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("remove")
@@ -38,12 +36,12 @@ public class RemoveCommand {
         if (argument.startsWith("g:")) {
             argument = argument.substring("g:".length());
 
-            if (!cache.isGroupWhitelisted(argument)) {
+            if (!db.isGroupWhitelisted(argument)) {
                 ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.group-not-whitelisted", argument));
                 return 1;
             }
 
-            cache.removeGroup(argument);
+            db.removeGroup(argument);
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.removed-group-from-whitelist", argument));
 
             return 1;
@@ -55,12 +53,12 @@ public class RemoveCommand {
             return 1;
         }
 
-        if (!cache.isWhitelisted(uuid)) {
+        if (!db.isWhitelisted(uuid)) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.not-whitelisted", argument));
             return 1;
         }
 
-        cache.removeFromWhitelist(uuid);
+        db.removeFromWhitelist(uuid);
         ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.removed-from-whitelist", argument));
 
         return 1;
