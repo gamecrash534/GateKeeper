@@ -6,7 +6,7 @@
 
     <groupId>xyz.gamecrash</groupId>
     <artifactId>gatekeeper</artifactId>
-    <version>1.4.2</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>velocitywhitelist</name>
@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -47,22 +47,10 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <filters>
-                        <filter>
-                            <artifact>org.xerial:sqlite-jdbc</artifact>
-                            <includes>
-                                <include>org/sqlite/**/*.class</include>
-                                <include>org/sqlite/native/Linux/x86_64/**</include>
-                                <include>org/sqlite/native/Windows/x86_64/**</include>
-                                <include>org/sqlite/native/Windows/x86/**</include>
-                                <include>org/sqlite/native/MacOS/**</include>
-                            </includes>
-                        </filter>
-                    </filters>
-
+                    <minimizeJar>true</minimizeJar>
                     <artifactSet>
                         <includes>
-                            <include>org.xerial:sqlite-jdbc</include>
+                            <include>com.h2database:h2-mvstore</include>
                         </includes>
                     </artifactSet>
                 </configuration>
@@ -85,7 +73,7 @@
         <dependency>
             <groupId>com.velocitypowered</groupId>
             <artifactId>velocity-api</artifactId>
-            <version>3.4.0-SNAPSHOT</version>
+            <version>3.5.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -101,14 +89,20 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.50.3.0</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2-mvstore</artifactId>
+            <version>2.4.240</version>
         </dependency>
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-yaml</artifactId>
             <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.5</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

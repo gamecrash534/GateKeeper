@@ -6,17 +6,18 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import lombok.Setter;
 import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
-import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 public class LoginListener {
     private final GateKeeper plugin;
-    private final WhitelistCache cache;
+    private final Database db;
     @Setter private boolean isEnabled;
 
     public LoginListener(GateKeeper plugin) {
         this.plugin = plugin;
-        this.cache = plugin.getWhitelistCache();
+        this.db = plugin.getDatabase();
         this.isEnabled = plugin.getConfigManager().isWhitelistEnabled();
     }
 
@@ -26,22 +27,20 @@ public class LoginListener {
 
         Player player = e.getPlayer();
 
-        if (!cache.isWhitelisted(player.getUniqueId())) {
+        if (!db.isWhitelisted(player.getUniqueId()) && !LuckPermsIntegration.isInGroup(player.getUniqueId(), db.getWhitelistedGroups())) {
             e.setResult(ResultedEvent.ComponentResult.denied(
                 MessageUtil.fromConfigKey("messages", "disconnect-reason")
             ));
             plugin.getLogger().info("Player {} tried to join but is not whitelisted. UUID: {}", player.getUsername(), player.getUniqueId());
-        } else {
-            updateUsername(player);
-        }
+        } else if (db.isWhitelisted(player.getUniqueId())) updateUsername(player);
     }
 
     private void updateUsername(Player player) {
         String currentUsername = player.getUsername();
-        String storedUsername = cache.getUsername(player.getUniqueId());
+        String storedUsername = db.getWhitelistUsername(player.getUniqueId());
 
         if (storedUsername == null || !storedUsername.equals(currentUsername)) {
-            cache.updateUsername(player.getUniqueId(), currentUsername);
+            db.addToWhitelist(player.getUniqueId(), currentUsername);
             plugin.getLogger().info("Updated username for UUID {}: {} -> {}",
                 player.getUniqueId(), storedUsername, currentUsername);
         }

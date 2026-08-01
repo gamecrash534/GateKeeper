@@ -6,15 +6,15 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 import xyz.gamecrash.gatekeeper.util.UuidUtils;
-import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
 
 import java.util.UUID;
 
 public class AddCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
-    private static final WhitelistCache cache = plugin.getWhitelistCache();
+    private static final Database db = plugin.getDatabase();
 
     public static LiteralCommandNode<CommandSource> build() {
         return BrigadierCommand.literalArgumentBuilder("add")
@@ -41,12 +41,12 @@ public class AddCommand {
             return 1;
         }
 
-        if (cache.isWhitelisted(uuid)) {
+        if (db.isWhitelisted(uuid)) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.already-whitelisted", argument));
             return 1;
         }
 
-        cache.addToWhitelist(uuid, argument);
+        db.addToWhitelist(uuid, argument);
         ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.added-to-whitelist", argument));
 
         return 1;

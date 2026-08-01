@@ -7,25 +7,31 @@ import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.text.Component;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
-import java.util.Collection;
+import java.util.Set;
 
-public class ListCommand {
+public class ListgroupsCommand {
     private static final GateKeeper plugin = GateKeeper.getInstance();
     private static final Database db = plugin.getDatabase();
 
     public static LiteralCommandNode<CommandSource> build() {
-        return BrigadierCommand.literalArgumentBuilder("list")
-            .requires(source -> source.hasPermission("whitelist.list"))
-            .executes(ListCommand::execute)
+        return BrigadierCommand.literalArgumentBuilder("listgroups")
+            .requires(source -> source.hasPermission("whitelist.listgroups"))
+            .executes(ListgroupsCommand::execute)
             .build();
     }
 
     private static int execute(CommandContext<CommandSource> ctx) {
-        Collection<String> whitelist = db.getWhitelistUsernames();
+        if (!LuckPermsIntegration.present()) {
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.lp-integration-missing"));
+            return 1;
+        }
+
+        Set<String> whitelist = db.getWhitelistedGroups();
         Component message = whitelist.isEmpty() ? MessageUtil.prefixedMessage("messages.info.list-empty") :
-            MessageUtil.prefixedMessage("messages.info.list", String.join(", ", whitelist));
+            MessageUtil.prefixedMessage("messages.info.listgroups", String.join(", ", whitelist));
 
         ctx.getSource().sendMessage(message);
         return 1;

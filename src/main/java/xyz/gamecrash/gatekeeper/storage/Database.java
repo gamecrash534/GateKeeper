@@ -1,20 +1,16 @@
 package xyz.gamecrash.gatekeeper.storage;
 
-import lombok.Getter;
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
-import java.io.File;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.Map;
-import java.util.HashMap;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Database {
-    @Getter
-    private Connection connection;
+    private MVStore store;
+    private MVMap<String, String> map;
     private final GateKeeper plugin;
 
     public Database(GateKeeper plugin) {
@@ -23,10 +19,17 @@ public class Database {
 
     public void connect() throws RuntimeException {
         try {
-            File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
-            loadJdbcDriver();
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-            executeUpdate("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);");
+            Path dbPath = plugin.getDataDirectory().resolve("database");
+
+            store = new MVStore.Builder()
+                .fileName(dbPath.toString())
+                .compress()
+                .open();
+
+            map = store.openMap("whitelist");
+
+            map.putIfAbsent("groups", "");
+
             plugin.getLogger().info("Connected to the database");
         } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
@@ -35,122 +38,61 @@ public class Database {
     }
 
     public void disconnect() {
-        closeConnection();
+        store.close();
+    }
+
+    public boolean addGroup(String group) {
+        map.compute("groups", (k, v) -> v + group + ";");
+        return true;
+    }
+
+    public boolean removeGroup(String group) {
+        map.compute("groups", (k, v) -> v.replace(group + ";", ""));
+        return true;
     }
 
     public boolean isWhitelisted(UUID uuid) {
-        return executeQuery("SELECT 1 FROM whitelist WHERE uuid = ?", uuid.toString());
+        return map.containsKey(uuid.toString());
+    }
+
+    public boolean isGroupWhitelisted(String group) {
+        return map.get("groups").contains(group);
     }
 
     public boolean addToWhitelist(UUID uuid, String username) {
-        return executeUpdate("INSERT OR IGNORE INTO whitelist (uuid, username) VALUES (?, ?)", uuid.toString(), username) > 0;
+        return map.put(uuid.toString(), username) == null;
     }
 
     public boolean removeFromWhitelist(UUID uuid) {
-        return executeUpdate("DELETE FROM whitelist WHERE uuid = ?", uuid.toString()) > 0;
+        return map.remove(uuid.toString()) != null;
     }
 
     public void clearWhitelist() {
-        executeUpdate("DELETE FROM whitelist");
+        map.clear();
     }
 
     public String getWhitelistUsername(UUID uuid) {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist WHERE uuid = ?")) {
-            statement.setString(1, uuid.toString());
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getString("username");
-                } else {
-                    return null;
-                }
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not retrieve username for UUID: " + uuid, e);
-            return null;
-        }
+        return map.get(uuid.toString());
     }
 
-    public List<String> getWhitelistUsernames() {
-        try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist");
-             ResultSet resultSet = statement.executeQuery()) {
-            List<String> whitelist = new ArrayList<>();
-            while (resultSet.next()) {
-                whitelist.add(resultSet.getString("username"));
-            }
-            return whitelist;
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not retrieve whitelist", e);
-            return Collections.emptyList();
-        }
+    public Set<String> getWhitelistedGroups() {
+        return Arrays.stream(map.get("groups")
+            .split(";"))
+            .collect(Collectors.toSet());
+    }
+
+    public Collection<String> getWhitelistUsernames() {
+        return map.entrySet().stream()
+            .filter(e -> !e.getKey().equals("groups"))
+            .flatMap(e -> e.getValue().lines())
+            .collect(Collectors.toSet());
     }
 
     public Map<UUID, String> getAllWhitelistEntries() {
-        Map<UUID, String> entries = new HashMap<>();
-        try (PreparedStatement statement = connection.prepareStatement("SELECT uuid, username FROM whitelist");
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                UUID uuid = UUID.fromString(resultSet.getString("uuid"));
-                String username = resultSet.getString("username");
-                entries.put(uuid, username);
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().error("Could not retrieve all whitelist entries", e);
-        }
-        return entries;
-    }
-
-    public boolean setWhitelistUsername(UUID uuid, String newUsername) {
-        return executeUpdate("UPDATE whitelist SET username = ? WHERE uuid = ?", newUsername, uuid.toString()) > 0;
-    }
-
-    public boolean isConnected() {
-        try {
-            return connection != null && !connection.isClosed();
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    private void loadJdbcDriver() throws ClassNotFoundException {
-        Class.forName("org.sqlite.JDBC");
-    }
-
-    private void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-                plugin.getLogger().info("Disconnected from the database");
-            } catch (SQLException e) {
-                plugin.getLogger().error("Could not disconnect from the database", e);
-            }
-        }
-    }
-
-    private boolean executeQuery(String sql, String... params) {
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            setParameters(statement, params);
-            try (ResultSet result = statement.executeQuery()) {
-                return result.next();
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().error("Query execution failed", e);
-            return false;
-        }
-    }
-
-    private int executeUpdate(String sql, String... params) {
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            setParameters(statement, params);
-            return statement.executeUpdate();
-        } catch (SQLException e) {
-            plugin.getLogger().error("Update execution failed", e);
-            return 0;
-        }
-    }
-
-    private void setParameters(PreparedStatement statement, String... params) throws SQLException {
-        for (int i = 0; i < params.length; i++) {
-            statement.setString(i + 1, params[i]);
-        }
+        return map.entrySet().stream()
+            .filter(e -> !e.getKey().equals("groups"))
+            .collect(
+                Collectors.toMap(e -> UUID.fromString(e.getKey()), Map.Entry::getValue)
+            );
     }
 }

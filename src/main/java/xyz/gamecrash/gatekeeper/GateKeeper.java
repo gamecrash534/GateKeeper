@@ -4,9 +4,10 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -17,12 +18,17 @@ import xyz.gamecrash.gatekeeper.config.ConfigManager;
 import xyz.gamecrash.gatekeeper.listener.LoginListener;
 import xyz.gamecrash.gatekeeper.storage.Database;
 import xyz.gamecrash.gatekeeper.util.FloodgateIntegration;
-import xyz.gamecrash.gatekeeper.storage.WhitelistCache;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-@Plugin(id = "gatekeeper", name = "GateKeeper", version = "1.0-SNAPSHOT", description = "Velocity Whitelist Plugin", authors = {"game.crash"})
+@Plugin(id = "gatekeeper", name = "GateKeeper", version = "1.0-SNAPSHOT", description = "Velocity Whitelist Plugin", authors = {"game.crash"},
+    dependencies = {
+        @Dependency(id = "floodgate", optional = true),
+        @Dependency(id = "luckperms", optional = true)
+    }
+)
 public class GateKeeper {
     @Getter private static GateKeeper instance;
 
@@ -31,8 +37,8 @@ public class GateKeeper {
     @Getter private final Path dataDirectory;
     @Getter private final ConfigManager configManager;
     @Getter private final Database database;
-    @Getter private final WhitelistCache whitelistCache;
-    @Getter private final FloodgateIntegration floodgateIntegration;
+    @Getter private FloodgateIntegration floodgateIntegration;
+    @Getter private LuckPermsIntegration luckpermsIntegration;
     @Getter private LoginListener loginListener;
 
     @Inject
@@ -46,8 +52,6 @@ public class GateKeeper {
         createDataDirectory();
         configManager = new ConfigManager(this);
         database = initializeDatabase();
-        floodgateIntegration = new FloodgateIntegration();
-        whitelistCache = new WhitelistCache(this);
     }
 
     @Subscribe
@@ -60,7 +64,9 @@ public class GateKeeper {
             return;
         }
         configManager.loadConfiguration();
-        whitelistCache.initializeCache();
+
+        floodgateIntegration = new FloodgateIntegration();
+        luckpermsIntegration = new LuckPermsIntegration();
 
         registerCommands();
         registerListeners();
@@ -69,7 +75,6 @@ public class GateKeeper {
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         logger.info("Shutting down Plugin");
-        whitelistCache.shutdown();
         database.disconnect();
         logger.info("Done");
     }
