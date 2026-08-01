@@ -6,12 +6,8 @@ import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.File;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Database {
     @Getter
@@ -39,8 +35,20 @@ public class Database {
         closeConnection();
     }
 
+    public boolean addGroup(String group) {
+        return executeUpdate("UPDATE whitelist SET username = username || CONCAT(';', ?) WHERE (uuid = 'groups');", group) == 1;
+    }
+
+    public boolean removeGroup(String group) {
+        return executeUpdate("UPDATE whitelist SET username = REPLACE(username, CONCAT(';', ?)) WHERE (uuid = 'groups');", group) == 1;
+    }
+
     public boolean isWhitelisted(UUID uuid) {
         return executeQuery("SELECT 1 FROM whitelist WHERE uuid = ?", uuid.toString());
+    }
+
+    public boolean isGroupWhitelisted(String group) {
+        return executeQuery("SELECT 1 FROM whitelist WHERE uuid = 'groups' AND username LIKE %?%", group);
     }
 
     public boolean addToWhitelist(UUID uuid, String username) {
@@ -71,6 +79,19 @@ public class Database {
         }
     }
 
+    public Set<String> getWhitelistedGroups() {
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT username FROM whitelist WHERE uuid = 'groups'")) {
+            ResultSet resultSet = stmt.executeQuery();
+
+            return Arrays.stream(resultSet.getString("username")
+                .split(";"))
+                .collect(Collectors.toSet());
+        } catch (SQLException e) {
+            plugin.getLogger().error("Could not retrieve whitelisted groups", e);
+            return Collections.emptySet();
+        }
+    }
+
     public List<String> getWhitelistUsernames() {
         try (PreparedStatement statement = connection.prepareStatement("SELECT username FROM whitelist");
              ResultSet resultSet = statement.executeQuery()) {
@@ -90,6 +111,8 @@ public class Database {
         try (PreparedStatement statement = connection.prepareStatement("SELECT uuid, username FROM whitelist");
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
+                if (resultSet.getString("uuid").equals("groups")) continue;
+
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 String username = resultSet.getString("username");
                 entries.put(uuid, username);

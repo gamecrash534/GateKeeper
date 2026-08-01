@@ -2,6 +2,7 @@ package xyz.gamecrash.gatekeeper.storage;
 
 import lombok.Getter;
 import xyz.gamecrash.gatekeeper.GateKeeper;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,10 +15,12 @@ public class WhitelistCache {
 
     private final Map<UUID, String> uuidToUsernameCache = new ConcurrentHashMap<>();
     private final Set<UUID> whitelistedUuids = ConcurrentHashMap.newKeySet();
+    private final Set<String> whitelistedGroups = ConcurrentHashMap.newKeySet();
     private long lastCacheUpdate = 0;
     private long cacheTtl;
     private final ScheduledExecutorService cacheRefreshExecutor;
     @Getter private boolean cacheEnabled;
+    private final Database db;
 
     public WhitelistCache(GateKeeper plugin) {
         this.plugin = plugin;
@@ -26,6 +29,7 @@ public class WhitelistCache {
             t.setDaemon(true);
             return t;
         });
+        db = plugin.getDatabase();
     }
 
     public void initializeCache() {
@@ -44,13 +48,13 @@ public class WhitelistCache {
     public void refreshCache() {
         if (!cacheEnabled) return;
 
-        if (!plugin.getDatabase().isConnected()) {
+        if (!db.isConnected()) {
             plugin.getLogger().warn("Database not connected, skipping cache refresh");
             return;
         }
 
         try {
-            Map<UUID, String> freshData = plugin.getDatabase().getAllWhitelistEntries();
+            Map<UUID, String> freshData = db.getAllWhitelistEntries();
 
             clearCache();
 
@@ -61,6 +65,8 @@ public class WhitelistCache {
                 uuidToUsernameCache.put(uuid, username);
                 whitelistedUuids.add(uuid);
             }
+            
+            whitelistedGroups.addAll(db.getWhitelistedGroups());
 
             lastCacheUpdate = System.currentTimeMillis();
             plugin.getLogger().debug("Cache refreshed with {} entries", whitelistedUuids.size());
@@ -71,18 +77,24 @@ public class WhitelistCache {
     }
 
     public boolean isWhitelisted(UUID uuid) {
-        if (!cacheEnabled) {
-            return plugin.getDatabase().isWhitelisted(uuid);
-        }
+        if (!cacheEnabled) return db.isWhitelisted(uuid);
 
         if (isCacheStale()) refreshCache();
 
-        return whitelistedUuids.contains(uuid);
+        return whitelistedUuids.contains(uuid) || LuckPermsIntegration.isInGroup(uuid, whitelistedGroups);
+    }
+
+    public boolean isGroupWhitelisted(String group) {
+        if (!cacheEnabled) return db.isGroupWhitelisted(group);
+
+        if (isCacheStale()) refreshCache();
+
+        return whitelistedGroups.contains(group);
     }
 
     public String getUsername(UUID uuid) {
         if (!cacheEnabled) {
-            return plugin.getDatabase().getWhitelistUsername(uuid);
+            return db.getWhitelistUsername(uuid);
         }
 
         if (isCacheStale()) refreshCache();
@@ -90,8 +102,30 @@ public class WhitelistCache {
         return uuidToUsernameCache.get(uuid);
     }
 
+    public boolean addGroup(String group) {
+        boolean success = db.addGroup(group);
+
+        if (success && cacheEnabled) {
+            whitelistedGroups.add(group);
+            plugin.getLogger().debug("Added group {} to cache", group);
+        }
+
+        return success;
+    }
+
+    public boolean removeGroup(String group) {
+        boolean success = db.removeGroup(group);
+
+        if (success && cacheEnabled) {
+            whitelistedGroups.remove(group);
+            plugin.getLogger().debug("Removed group {} to cache", group);
+        }
+
+        return success;
+    }
+
     public boolean addToWhitelist(UUID uuid, String username) {
-        boolean success = plugin.getDatabase().addToWhitelist(uuid, username);
+        boolean success = db.addToWhitelist(uuid, username);
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.put(uuid, username);
@@ -104,7 +138,7 @@ public class WhitelistCache {
 
     public boolean removeFromWhitelist(UUID uuid) {
         String username = cacheEnabled ? uuidToUsernameCache.get(uuid) : null;
-        boolean success = plugin.getDatabase().removeFromWhitelist(uuid);
+        boolean success = db.removeFromWhitelist(uuid);
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.remove(uuid);
@@ -116,7 +150,7 @@ public class WhitelistCache {
     }
 
     public void clearWhitelist() {
-        plugin.getDatabase().clearWhitelist();
+        db.clearWhitelist();
 
         if (cacheEnabled) {
             clearCache();
@@ -126,7 +160,7 @@ public class WhitelistCache {
 
     public boolean updateUsername(UUID uuid, String newUsername) {
         String oldUsername = cacheEnabled ? uuidToUsernameCache.get(uuid) : null;
-        boolean success = plugin.getDatabase().setWhitelistUsername(uuid, newUsername);
+        boolean success = db.setWhitelistUsername(uuid, newUsername);
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.put(uuid, newUsername);
@@ -139,7 +173,7 @@ public class WhitelistCache {
 
     public List<String> getAllUsernames() {
         if (!cacheEnabled) {
-            return plugin.getDatabase().getWhitelistUsernames();
+            return db.getWhitelistUsernames();
         }
 
         if (isCacheStale()) refreshCache();
