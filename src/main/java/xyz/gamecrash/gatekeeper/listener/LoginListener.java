@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.Player;
 import lombok.Setter;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 public class LoginListener {
@@ -26,14 +27,12 @@ public class LoginListener {
 
         Player player = e.getPlayer();
 
-        if (!db.isWhitelisted(player.getUniqueId())) {
+        if (!db.isWhitelisted(player.getUniqueId()) && !LuckPermsIntegration.isInGroup(player.getUniqueId(), db.getWhitelistedGroups())) {
             e.setResult(ResultedEvent.ComponentResult.denied(
                 MessageUtil.fromConfigKey("messages", "disconnect-reason")
             ));
             plugin.getLogger().info("Player {} tried to join but is not whitelisted. UUID: {}", player.getUsername(), player.getUniqueId());
-        } else {
-            updateUsername(player);
-        }
+        } else if (db.isWhitelisted(player.getUniqueId())) updateUsername(player);
     }
 
     private void updateUsername(Player player) {
@@ -41,7 +40,7 @@ public class LoginListener {
         String storedUsername = db.getWhitelistUsername(player.getUniqueId());
 
         if (storedUsername == null || !storedUsername.equals(currentUsername)) {
-            db.setWhitelistUsername(player.getUniqueId(), currentUsername);
+            db.addToWhitelist(player.getUniqueId(), currentUsername);
             plugin.getLogger().info("Updated username for UUID {}: {} -> {}",
                 player.getUniqueId(), storedUsername, currentUsername);
         }

@@ -95,12 +95,4 @@ public class Database {
                 Collectors.toMap(e -> UUID.fromString(e.getKey()), Map.Entry::getValue)
             );
     }
-
-    public boolean setWhitelistUsername(UUID uuid, String newUsername) {
-        return map.put(uuid.toString(), newUsername) != null;
-    }
-
-    public boolean isConnected() {
-        return !store.isClosed();
-    }
 }
