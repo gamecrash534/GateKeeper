@@ -65,11 +65,11 @@ public class GateKeeper {
         }
         configManager.loadConfiguration();
 
-        registerCommands();
-        registerListeners();
-
         floodgateIntegration = new FloodgateIntegration();
         luckpermsIntegration = new LuckPermsIntegration();
+
+        registerCommands();
+        registerListeners();
     }
 
     @Subscribe

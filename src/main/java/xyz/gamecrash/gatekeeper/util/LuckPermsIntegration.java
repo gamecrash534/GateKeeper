@@ -28,11 +28,15 @@ public class LuckPermsIntegration {
         return !Collections.disjoint(user.getInheritedGroups(user.getQueryOptions()).stream().map(Group::getName).toList(), groups);
     }
 
+    public static boolean present() {
+        return api != null;
+    }
+
     private @Nullable LuckPerms getApi() {
         try {
             logger.info("Enabling LuckPerms integration");
             return LuckPermsProvider.get();
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | NoClassDefFoundError e) {
             logger.info("LuckPerms integration not present, skipping");
             return null;
         }

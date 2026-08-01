@@ -1,11 +1,7 @@
 enabled: true
 
-prefix: "<dark_gray>[<light_purple>Whitelist<dark_gray>]<reset> "
 
-cache:
-  enabled: true
-  ttl-minutes: 5
-  refresh-interval-minutes: 10
+prefix: "<dark_gray>[<light_purple>Whitelist<dark_gray>]<reset> "
 
 messages:
   disconnect-reason: |
@@ -20,10 +16,13 @@ messages:
     incorrect-confirmation: "<red>Incorrect confirmation number."
     whitelist-already-on: "<red>Whitelist is already enabled.</red>"
     whitelist-already-off: "<red>Whitelist is already disabled.</red>"
+    lp-integration-missing: "<red>LuckPerms is required on the proxy to use the group whitelisting feature."
   usage:
     add: "<red>Usage: /vwhitelist add <player></red>"
+    addgroup: "<red>Usage: /vwhitelist add <group></red>"
     remove: "<red>Usage: /vwhitelist remove <player></red>"
-    whitelist: "<red>Usage: /vwhitelist <on|off|add|remove|list|listgroups></red>"
+    removegroup: "<red>Usage: /vwhitelist remove <group></red>"
+    whitelist: "<red>Usage: /vwhitelist <on|off|add|remove|addgroup|removegroup|list|listgroups></red>"
   info:
     added-to-whitelist: "Added <red>{0}</red> to the whitelist."
     removed-from-whitelist: "Removed <red>{0}</red> from the whitelist."

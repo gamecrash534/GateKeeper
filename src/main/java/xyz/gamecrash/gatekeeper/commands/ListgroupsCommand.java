@@ -7,6 +7,7 @@ import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.text.Component;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 import xyz.gamecrash.gatekeeper.storage.Database;
+import xyz.gamecrash.gatekeeper.util.LuckPermsIntegration;
 import xyz.gamecrash.gatekeeper.util.MessageUtil;
 
 import java.util.Set;
@@ -23,6 +24,11 @@ public class ListgroupsCommand {
     }
 
     private static int execute(CommandContext<CommandSource> ctx) {
+        if (!LuckPermsIntegration.present()) {
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.lp-integration-missing"));
+            return 1;
+        }
+
         Set<String> whitelist = db.getWhitelistedGroups();
         Component message = whitelist.isEmpty() ? MessageUtil.prefixedMessage("messages.info.list-empty") :
             MessageUtil.prefixedMessage("messages.info.listgroups", String.join(", ", whitelist));
