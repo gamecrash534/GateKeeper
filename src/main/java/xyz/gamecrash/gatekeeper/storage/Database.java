@@ -1,6 +1,7 @@
 package xyz.gamecrash.gatekeeper.storage;
 
 import lombok.Getter;
+import org.intellij.lang.annotations.Language;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
 import java.io.File;
@@ -23,7 +24,7 @@ public class Database {
 
     public void connect() throws RuntimeException {
         try {
-            File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist.db");
+            File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist");
             loadJdbcDriver();
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
             executeUpdate("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);");
@@ -43,7 +44,7 @@ public class Database {
     }
 
     public boolean addToWhitelist(UUID uuid, String username) {
-        return executeUpdate("INSERT OR IGNORE INTO whitelist (uuid, username) VALUES (?, ?)", uuid.toString(), username) > 0;
+        return executeUpdate("MERGE INTO whitelist (uuid, username) KEY(uuid) VALUES (?, ?)", uuid.toString(), username) > 0;
     }
 
     public boolean removeFromWhitelist(UUID uuid) {
@@ -112,7 +113,7 @@ public class Database {
     }
 
     private void loadJdbcDriver() throws ClassNotFoundException {
-        Class.forName("org.sqlite.JDBC");
+        Class.forName("org.h2.Driver");
     }
 
     private void closeConnection() {
@@ -126,7 +127,7 @@ public class Database {
         }
     }
 
-    private boolean executeQuery(String sql, String... params) {
+    private boolean executeQuery(@Language("H2") String sql, String... params) {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             setParameters(statement, params);
             try (ResultSet result = statement.executeQuery()) {
@@ -138,7 +139,7 @@ public class Database {
         }
     }
 
-    private int executeUpdate(String sql, String... params) {
+    private int executeUpdate(@Language("H2") String sql, String... params) {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             setParameters(statement, params);
             return statement.executeUpdate();
