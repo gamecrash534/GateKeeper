@@ -22,8 +22,9 @@ public class Database {
         try {
             File dbFile = new File(plugin.getDataDirectory().toFile(), "whitelist");
             loadJdbcDriver();
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+            connection = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath());
             executeUpdate("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT PRIMARY KEY, username TEXT);");
+            executeUpdate("MERGE INTO whitelist VALUES ( ?, ? )", "groups", "");
             plugin.getLogger().info("Connected to the database");
         } catch (Exception e) {
             plugin.getLogger().error("Could not connect to the database", e);
