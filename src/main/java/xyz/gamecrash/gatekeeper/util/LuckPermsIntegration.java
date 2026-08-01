@@ -30,7 +30,7 @@ public class LuckPermsIntegration {
 
     private @Nullable LuckPerms getApi() {
         try {
-            logger.info("Trying to obtain LuckPerms API instance");
+            logger.info("Enabling LuckPerms integration");
             return LuckPermsProvider.get();
         } catch (IllegalStateException e) {
             logger.info("LuckPerms integration not present, skipping");

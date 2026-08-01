@@ -37,8 +37,8 @@ public class GateKeeper {
     @Getter private final Path dataDirectory;
     @Getter private final ConfigManager configManager;
     @Getter private final Database database;
-    @Getter private final FloodgateIntegration floodgateIntegration;
-    @Getter private final LuckPermsIntegration luckpermsIntegration;
+    @Getter private FloodgateIntegration floodgateIntegration;
+    @Getter private LuckPermsIntegration luckpermsIntegration;
     @Getter private LoginListener loginListener;
 
     @Inject
@@ -52,8 +52,6 @@ public class GateKeeper {
         createDataDirectory();
         configManager = new ConfigManager(this);
         database = initializeDatabase();
-        floodgateIntegration = new FloodgateIntegration();
-        luckpermsIntegration = new LuckPermsIntegration();
     }
 
     @Subscribe
@@ -69,6 +67,9 @@ public class GateKeeper {
 
         registerCommands();
         registerListeners();
+
+        floodgateIntegration = new FloodgateIntegration();
+        luckpermsIntegration = new LuckPermsIntegration();
     }
 
     @Subscribe
