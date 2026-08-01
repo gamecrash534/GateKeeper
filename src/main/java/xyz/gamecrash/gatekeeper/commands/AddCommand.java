@@ -35,6 +35,20 @@ public class AddCommand {
 
         if (argument.startsWith("\"") && argument.endsWith("\"")) argument = argument.substring(1, argument.length() - 1);
 
+        if (argument.startsWith("g:")) {
+            argument = argument.substring("g:".length());
+
+            if (cache.isGroupWhitelisted(argument)) {
+                ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.group-already-whitelisted", argument));
+                return 1;
+            }
+
+            cache.addGroup(argument);
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.added-group-to-whitelist", argument));
+
+            return 1;
+        }
+
         UUID uuid = UuidUtils.returnPlayerUUID(argument);
         if (uuid == null) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));

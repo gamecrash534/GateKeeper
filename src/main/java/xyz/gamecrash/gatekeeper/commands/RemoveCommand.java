@@ -35,6 +35,20 @@ public class RemoveCommand {
     private static int execute(CommandContext<CommandSource> ctx) {
         String argument = StringArgumentType.getString(ctx, "username");
 
+        if (argument.startsWith("g:")) {
+            argument = argument.substring("g:".length());
+
+            if (!cache.isGroupWhitelisted(argument)) {
+                ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.group-not-whitelisted", argument));
+                return 1;
+            }
+
+            cache.removeGroup(argument);
+            ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.info.removed-group-from-whitelist", argument));
+
+            return 1;
+        }
+
         UUID uuid = UuidUtils.returnPlayerUUID(argument);
         if (uuid == null) {
             ctx.getSource().sendMessage(MessageUtil.prefixedMessage("messages.errors.player-not-found", argument));
