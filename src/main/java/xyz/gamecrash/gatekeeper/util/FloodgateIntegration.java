@@ -33,7 +33,7 @@ public class FloodgateIntegration {
 
     private FloodgateApi initializeFloodgateApi() {
         try {
-            logger.info("Floodgate integration enabled");
+            logger.info("Trying to obtain Floodgate API instance");
             return FloodgateApi.getInstance();
         } catch (NoClassDefFoundError e) {
             logger.info("Floodgate integration not found, skipping");

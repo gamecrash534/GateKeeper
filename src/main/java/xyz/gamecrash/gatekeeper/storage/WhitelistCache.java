@@ -13,7 +13,6 @@ public class WhitelistCache {
     private final GateKeeper plugin;
 
     private final Map<UUID, String> uuidToUsernameCache = new ConcurrentHashMap<>();
-    private final Map<String, UUID> usernameToUuidCache = new ConcurrentHashMap<>();
     private final Set<UUID> whitelistedUuids = ConcurrentHashMap.newKeySet();
     private long lastCacheUpdate = 0;
     private long cacheTtl;
@@ -60,7 +59,6 @@ public class WhitelistCache {
                 String username = entry.getValue();
 
                 uuidToUsernameCache.put(uuid, username);
-                usernameToUuidCache.put(username.toLowerCase(), uuid);
                 whitelistedUuids.add(uuid);
             }
 
@@ -77,9 +75,7 @@ public class WhitelistCache {
             return plugin.getDatabase().isWhitelisted(uuid);
         }
 
-        if (isCacheStale()) {
-            refreshCache();
-        }
+        if (isCacheStale()) refreshCache();
 
         return whitelistedUuids.contains(uuid);
     }
@@ -89,9 +85,7 @@ public class WhitelistCache {
             return plugin.getDatabase().getWhitelistUsername(uuid);
         }
 
-        if (isCacheStale()) {
-            refreshCache();
-        }
+        if (isCacheStale()) refreshCache();
 
         return uuidToUsernameCache.get(uuid);
     }
@@ -101,7 +95,6 @@ public class WhitelistCache {
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.put(uuid, username);
-            usernameToUuidCache.put(username.toLowerCase(), uuid);
             whitelistedUuids.add(uuid);
             plugin.getLogger().debug("Added {} ({}) to cache", username, uuid);
         }
@@ -115,9 +108,6 @@ public class WhitelistCache {
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.remove(uuid);
-            if (username != null) {
-                usernameToUuidCache.remove(username.toLowerCase());
-            }
             whitelistedUuids.remove(uuid);
             plugin.getLogger().debug("Removed {} ({}) from cache", username, uuid);
         }
@@ -140,11 +130,6 @@ public class WhitelistCache {
 
         if (success && cacheEnabled) {
             uuidToUsernameCache.put(uuid, newUsername);
-            usernameToUuidCache.put(newUsername.toLowerCase(), uuid);
-
-            if (oldUsername != null) {
-                usernameToUuidCache.remove(oldUsername.toLowerCase());
-            }
 
             plugin.getLogger().debug("Updated username in cache: {} -> {} ({})", oldUsername, newUsername, uuid);
         }
@@ -157,9 +142,7 @@ public class WhitelistCache {
             return plugin.getDatabase().getWhitelistUsernames();
         }
 
-        if (isCacheStale()) {
-            refreshCache();
-        }
+        if (isCacheStale()) refreshCache();
 
         return new ArrayList<>(uuidToUsernameCache.values());
     }
@@ -170,7 +153,6 @@ public class WhitelistCache {
 
     private void clearCache() {
         uuidToUsernameCache.clear();
-        usernameToUuidCache.clear();
         whitelistedUuids.clear();
     }
 
