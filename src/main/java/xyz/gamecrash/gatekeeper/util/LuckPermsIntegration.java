@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import xyz.gamecrash.gatekeeper.GateKeeper;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,10 +21,16 @@ public class LuckPermsIntegration {
     }
 
     public static boolean isInGroup(UUID uuid, Set<String> groups) {
-        if (api == null) return false;
-
+        if (api == null || groups.isEmpty()) return false;
         User user = api.getUserManager().getUser(uuid);
-        return !Collections.disjoint(user.getInheritedGroups(user.getQueryOptions()).stream().map(Group::getName).toList(), groups);
+        if (user == null) return false;
+
+        for (Group group : user.getInheritedGroups(user.getQueryOptions())) {
+            if (groups.contains(group.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean present() {

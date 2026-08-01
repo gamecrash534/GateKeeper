@@ -42,12 +42,20 @@ public class Database {
     }
 
     public boolean addGroup(String group) {
-        map.compute("groups", (k, v) -> v + group + ";");
+        map.compute("groups", (k, v) -> {
+            Set<String> groups = parseGroups(v);
+            groups.add(group);
+            return serializeGroups(groups);
+        });
         return true;
     }
 
     public boolean removeGroup(String group) {
-        map.compute("groups", (k, v) -> v.replace(group + ";", ""));
+        map.compute("groups", (k, v) -> {
+            Set<String> groups = parseGroups(v);
+            groups.remove(group);
+            return serializeGroups(groups);
+        });
         return true;
     }
 
@@ -56,7 +64,7 @@ public class Database {
     }
 
     public boolean isGroupWhitelisted(String group) {
-        return map.get("groups").contains(group);
+        return getWhitelistedGroups().contains(group);
     }
 
     public boolean addToWhitelist(UUID uuid, String username) {
@@ -76,9 +84,7 @@ public class Database {
     }
 
     public Set<String> getWhitelistedGroups() {
-        return Arrays.stream(map.get("groups")
-            .split(";"))
-            .collect(Collectors.toSet());
+        return parseGroups(map.get("groups"));
     }
 
     public Collection<String> getWhitelistUsernames() {
@@ -88,11 +94,15 @@ public class Database {
             .collect(Collectors.toSet());
     }
 
-    public Map<UUID, String> getAllWhitelistEntries() {
-        return map.entrySet().stream()
-            .filter(e -> !e.getKey().equals("groups"))
-            .collect(
-                Collectors.toMap(e -> UUID.fromString(e.getKey()), Map.Entry::getValue)
-            );
+    private Set<String> parseGroups(String rawGroups) {
+        if (rawGroups == null || rawGroups.isBlank()) return new LinkedHashSet<>();
+
+        return Arrays.stream(rawGroups.split(";"))
+            .filter(group -> !group.isBlank())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private String serializeGroups(Set<String> groups) {
+        return String.join(";", groups);
     }
 }
